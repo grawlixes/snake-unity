@@ -12,7 +12,7 @@ public class Snake : MonoBehaviour
     // State of eating
     bool ate = false;
     // How long to spend before updating each time
-    const float UPDATE_TIME = 0.3f;
+    const float UPDATE_TIME = 0.1f;
 
     public GameObject tailPrefab;
 
@@ -25,13 +25,23 @@ public class Snake : MonoBehaviour
     // Update is called once per frame
     void Update() {
         if (Input.GetKey(KeyCode.RightArrow)) {
-            dir = Vector2.right;
+            if (tail.Count == 0 || dir != -Vector2.right) {
+                dir = Vector2.right;
+            }
         } else if (Input.GetKey(KeyCode.DownArrow)) {
-            dir = -Vector2.up;    // '-up' means 'down'
+            if (tail.Count == 0 || dir != Vector2.up) {
+                dir = -Vector2.up;
+            }
+            // '-up' means 'down'
         } else if (Input.GetKey(KeyCode.LeftArrow)) {
-            dir = -Vector2.right; // '-right' means 'left'
+            if (tail.Count == 0 || dir != Vector2.right) {
+                dir = -Vector2.right;
+            }
+            // '-right' means 'left'
         } else if (Input.GetKey(KeyCode.UpArrow)) {
-            dir = Vector2.up;
+            if (tail.Count == 0 || dir != -Vector2.up) {
+                dir = Vector2.up;
+            }
         }
     }
 
@@ -42,6 +52,19 @@ public class Snake : MonoBehaviour
 
         // Move head into a new direction to create the gap
         transform.Translate(dir);
+
+        if (ate) {
+            // Reset the flag
+            ate = false;
+
+            // Load new prefab into the world
+            GameObject g = (GameObject) Instantiate(tailPrefab,
+                                                    v,
+                                                    Quaternion.identity);
+
+            // Keep track of new tail
+            tail.Insert(0, g.transform);
+        }
 
         if (tail.Count != 0) {
             // Move last to where head is
